@@ -19,8 +19,8 @@ s.headers.update({
 # Определяем диапазон страниц которые соответствуют запросу по дате.
 # from_page = get_number_page_by_date(date)
 # to_page = get_number_page_by_date(date)
-album_links_path = 'D:/Work/album_links.bin'
-tracks_path = 'D:/Work/tracks.bin'
+album_links_path = 'D:/Work/LoadDemoTrackTools/album_links.bin'
+tracks_path = 'D:/Work/LoadDemoTrackTools/tracks.bin'
 from_page = 1
 to_page = 1
 page = from_page
@@ -35,17 +35,24 @@ while page <= to_page:
 	page+=1
 f.close()
 
-# Сохраняем информацию о треках в файл tracks.bin.
-ft = open(tracks_path, 'ab')
-# Открываем файл album_links.dat на чтение.
+# Открываем файл album_links.bin на чтение.
+f = open(album_links_path, 'rb')
+# Таблица для сохранения данных.
+table = []
 # Загружаем контент для каждой ссылки альбома.
-with open(album_links_path, "rb") as f:
-	link = pickle.load(f)
+for line in f:
+	link = line.decode()
+	link = link[:-1]
 	data = funcs.load_album_page(link, s)
 	# Парсим страницу получая информацию о треках.
-	funcs.parse_album(ft, link, data)
+	funcs.parse_album(table, link, data)
 f.close()
+
+# Сохраняем информацию о треках в файл tracks.bin.
+ft = open(tracks_path, 'wb')
+funcs.save_to_file(ft, table)
 ft.close()
+
 # Удаляем файл album_links.bin.
 os.remove(album_links_path)
 # Информация о треках в файле:
