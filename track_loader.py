@@ -82,7 +82,7 @@ while i < len(table):
 
 	# Вычисляем процент загрузки. Выводим в консоль.
 	percent = round(((i + 1) * 100) / len(table))
-	print('[' + str(percent) + '%]: loaded', artist + ' - ' + title + '.mp3')
+	print('[' + str(percent) + '%]', file_name)
 
 	# Записываем ID3 тег в файл.
 	audiofile = eyed3.load(file_name)

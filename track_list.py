@@ -59,7 +59,7 @@ while page <= to_page:
 	data = funcs.load_page(page, s)
 	# Парсим страницу получая ссылки на альбомы.
 	funcs.parse_page(source, f, data)
-	print(page, "page parsed" + "\n")
+	print(page, "page parsed")
 	page+=1
 f.close()
 
