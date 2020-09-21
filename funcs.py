@@ -42,7 +42,7 @@ def parse_page(source, file, text):
             album_link = albums.find('h3', {'class': 'title'}).find('a').get('href')
             album_link = source_address + album_link
         except:
-            print("fetch error:", album_link)
+            print("warning fetch", album_link)
         
         try:
             # todo разобраться с кодировкой текста
@@ -79,31 +79,31 @@ def parse_album(source, table, album_link, text):
         artist = soup.find('div',{'class':'artist'}).find('h1').text
     except:
         artist = ""
-        print("fetch error artist in:", album_link)
+        print("warning find artist in:", album_link)
     
     try:    
         album = soup.find('div',{'class':'title'}).find('h1').text
     except:
         album = ""
-        print("fetch error album in:", album_link)
+        print("warning find album in:", album_link)
     
     try:
         genre = soup.find('div',{'class':'styles'}).find('a',{'class':'main'}).find('em').text
     except:
         genre = ""
-        print("fetch error genre in:", album_link)
+        print("warning find genre in:", album_link)
     
     try:
         catalog = soup.find('div',{'class':'label'}).find('h1').text
     except:
         catalog = ""
-        print("fetch error catalog in:", album_link)
+        print("warning find catalog in:", album_link)
     
     try:
         label = soup.find('div',{'class':'label'}).find('h3').text
     except:
         label = ""
-        print("fetch error label in:", album_link)
+        print("warning find label in:", album_link)
     
     try:
         date = soup.find('span',{'class':'date'}).text
@@ -111,7 +111,7 @@ def parse_album(source, table, album_link, text):
         date = date[10:]
     except:
         date = ""
-        print("fetch error date in:", album_link)
+        print("warning find date in:", album_link)
     
     try:
         image1 = soup.find('div',{'class':'img allbig img1'}).find('a',{'class':'noMod'}).get('href')
@@ -122,7 +122,7 @@ def parse_album(source, table, album_link, text):
             image1 = source_address + image1
         except:
             image1 = ""
-            print("fetch error image1 in:", album_link)
+            print("warning find image1 in:", album_link)
     
     try:
         image2 = soup.find('div',{'class':'img allbig img2'}).find('a',{'class':'noMod'}).get('href')
@@ -133,7 +133,7 @@ def parse_album(source, table, album_link, text):
             image2 = source_address + image2
         except:
             image2 = ""
-            print("fetch error image2 in:", album_link)
+            print("warning find image2 in:", album_link)
 
     source = "deejay.de"
 
