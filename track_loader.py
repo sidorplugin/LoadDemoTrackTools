@@ -44,8 +44,8 @@ file.close()
 i = 0
 num_path = 1
 while i < len(table):
-	if i == 1:
-		break
+	# if i == 15
+	# 	break
 
 	artist = table[i][funcs.Track.artist.value]
 	album = table[i][funcs.Track.album.value]
@@ -57,18 +57,25 @@ while i < len(table):
 	image1 = table[i][funcs.Track.image1.value]
 	image2 = table[i][funcs.Track.image2.value]
 
-	# Скачиваем файл по ссылке.
-	mp3 = requests.get(link)
-
 	# Создаем директорию для треков.
 	if i % max_tracks == 0.0:
-		finish_path = root_path + str(num_path) + '/'
+		finish_path = root_path + '/' + str(num_path) + '/'
 		if not os.path.exists(finish_path):
 			os.mkdir(finish_path)
 		num_path += 1
+
+	# Определяем имя файла.
+	file_name = finish_path + artist + ' - ' + title + '.mp3'
+	
+	# Если файл уже есть обрабатываем следующий.
+	if os.path.isfile(file_name):
+		i += 1
+		continue
+	
+	# Скачиваем файл по ссылке.
+	mp3 = requests.get(link)
 	
 	# Записываем содержимое в файл.
-	file_name = finish_path + artist + ' - ' + title + '.mp3'
 	with open(file_name, 'wb') as f:
 		f.write(mp3.content)
 	f.close()
