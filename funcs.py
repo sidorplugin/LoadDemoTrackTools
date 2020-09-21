@@ -1,6 +1,23 @@
 # coding: utf8
 import requests
+import time
+import random
 from bs4 import BeautifulSoup
+from enum import Enum
+
+class Track(Enum):
+    artist = 0
+    title = 1
+    album = 2
+    genre = 3
+    catalog = 4
+    publisher = 5
+    date = 6
+    link = 7
+    album_link = 8
+    image1 = 9
+    image2 = 10
+    source = 11
 
 # todo universal func by genre
 def load_page(page, session):
@@ -13,12 +30,17 @@ def load_album_page(link, session):
     request = session.get(url)
     return request.text
 
-def parse_page(file, text):
+def parse_page(source, file, text):
     soup = BeautifulSoup(text, 'html.parser')
+
+    if not source.find("deejayde") == -1:
+        source_address = "http://www.deejay.de"
+
     for albums in soup.findAll('div',{'class':'artikel'}):
         try:
             # todo разобраться с ошибками выборки
             album_link = albums.find('h3', {'class': 'title'}).find('a').get('href')
+            album_link = source_address + album_link
         except:
             print("fetch error:", album_link)
         
@@ -47,8 +69,12 @@ def create_track_link(image_href, track_href):
     else:
         return ""    
 
-def parse_album(table, album_link, text):
+def parse_album(source, table, album_link, text):
     soup = BeautifulSoup(text, 'html.parser')
+    
+    if not source.find("deejayde") == -1:
+        source_address = "http://www.deejay.de"
+
     try:
         artist = soup.find('div',{'class':'artist'}).find('h1').text
     except:
@@ -81,21 +107,33 @@ def parse_album(table, album_link, text):
     
     try:
         date = soup.find('span',{'class':'date'}).text
+        # Убираем в начале строки слово "Release : ".
+        date = date[10:]
     except:
         date = ""
         print("fetch error date in:", album_link)
     
     try:
         image1 = soup.find('div',{'class':'img allbig img1'}).find('a',{'class':'noMod'}).get('href')
+        image1 = source_address + image1
     except:
-        image1 = ""
-        print("fetch error image1 in:", album_link)
+        try:
+            image1 = soup.find('div',{'class':'img img1'}).find('a',{'class':'noMod'}).get('href')
+            image1 = source_address + image1
+        except:
+            image1 = ""
+            print("fetch error image1 in:", album_link)
     
     try:
         image2 = soup.find('div',{'class':'img allbig img2'}).find('a',{'class':'noMod'}).get('href')
+        image2 = source_address + image2
     except:
-        image2 = ""
-        print("fetch error image2 in:", album_link)
+        try:
+            image2 = soup.find('div',{'class':'img img2'}).find('a',{'class':'noMod'}).get('href')
+            image2 = source_address + image2
+        except:
+            image2 = ""
+            print("fetch error image2 in:", album_link)
 
     source = "deejay.de"
 
@@ -103,8 +141,13 @@ def parse_album(table, album_link, text):
     length = len(table)
     for tracks in soup.findAll('li'):
         try:
-            title = tracks.find('a').find('h5').text
+            title = tracks.find('a').text
+            # Убираем лишние пробелы.
+            title = ' '.join(title.split())
+            title = title.replace(': ','_')
+            
             link = create_track_link (image1, tracks.find('a').get('href'))        
+            
             # Заполняем таблицу данными.
             table.append([])
             table[length].append(artist)
@@ -122,6 +165,7 @@ def parse_album(table, album_link, text):
         except:
             continue    
 
+# Функция сохраняет таблицу в файл.
 def save_to_file(file, table):
     # Размер таблицы
     rows = len(table)
@@ -169,3 +213,7 @@ def table_from_file(table, file):
         # Добавляем одну строку списка в таблице.
         table += [row]
         i += 1
+
+def rand_pause(sleep_time):
+    rand_time = random.randint(0, sleep_time)
+    time.sleep(rand_time)

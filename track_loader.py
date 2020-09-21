@@ -1,14 +1,36 @@
 # Загрузчик треков.
-# track_loader.py unique_tracks.bin -d "D:/Music" -i 1 -s 1
+# track_loader.py tracks.bin -d D:/Music -i 1 -s 5 -m 2000
 	# входной файл для записи
 	# d - директория для сохранения
 	# i - признак загрузки картинок, 0 - не загружать, 1 - загружать.
-	# s - признак сортировки по директориям, 0 - все в кучу, 1 - по директориям.s
+	# s - максимальное время задержки между загрузками
+	# m - максимальное количество треков в директории 
 
+import argparse
 import requests
+import sys
+import os
 import funcs
+import eyed3
 
-tracks_path = 'D:/Work/LoadDemoTrackTools/tracks.bin'
+# Разбор командной строки.
+parser = argparse.ArgumentParser()
+parser.add_argument ('bin_path', nargs=1)
+parser.add_argument ('-d', '--dir', default='')
+parser.add_argument ('-i', '--img', default=0)
+parser.add_argument ('-s', '--sleep', default=5)
+parser.add_argument ('-m', '--max', default=2000)
+
+namespace = parser.parse_args (sys.argv[1:])
+
+tracks_path = namespace.bin_path[0]
+root_path = namespace.dir
+sleep_time = int(namespace.sleep)
+max_tracks = int(namespace.max)
+load_img = bool(namespace.img)
+
+finish_path = ''
+cur_album = ''
 
 # Создаем таблицу.
 table = []
@@ -18,29 +40,88 @@ file = open(tracks_path, 'rb')
 funcs.table_from_file(table, file)
 file.close()
 
-# debug вывод таблицы на экран.
+# Проход по таблице с сохранением каждого файла.
 i = 0
+num_path = 1
 while i < len(table):
-    print("table[", i, "] = ", table[i])
-    i += 1
+	if i == 1:
+		break
 
- #    name = pickle.load(file)
- #    age = pickle.load(file)
- #    artist = pickle.load(file)
- #    title = pickle.load(title)
- #    album = pickle.load(file)
- #    genre = pickle.load(file)
- #    catalog = pickle.load(file)
- #    label = pickle.load(file)
- #    date = pickle.load(file)
- #    link = pickle.load(file)
- #    album_link = pickle.load(file)
- #    image1 = pickle.load(file)
- #    image2 = pickle.load(file)
- #    source = pickle.load(file)
-    # print(link)
+	artist = table[i][funcs.Track.artist.value]
+	album = table[i][funcs.Track.album.value]
+	title = table[i][funcs.Track.title.value]
+	link = table[i][funcs.Track.link.value]
+	genre = table[i][funcs.Track.genre.value]
+	date = table[i][funcs.Track.date.value]
+	publisher = table[i][funcs.Track.publisher.value]
+	image1 = table[i][funcs.Track.image1.value]
+	image2 = table[i][funcs.Track.image2.value]
 
-# mp3 = requests.get(link)
-# with open('D:/Work/first.mp3', 'wb') as f:
-#     f.write(mp3.content)
-# f.close()
+	# Скачиваем файл по ссылке.
+	mp3 = requests.get(link)
+
+	# Создаем директорию для треков.
+	if i % max_tracks == 0.0:
+		finish_path = root_path + str(num_path) + '/'
+		if not os.path.exists(finish_path):
+			os.mkdir(finish_path)
+		num_path += 1
+	
+	# Записываем содержимое в файл.
+	file_name = finish_path + artist + ' - ' + title + '.mp3'
+	with open(file_name, 'wb') as f:
+		f.write(mp3.content)
+	f.close()
+
+	# Вычисляем процент загрузки. Выводим в консоль.
+	percent = round(((i + 1) * 100) / len(table))
+	print('[' + str(percent) + '%]: loaded', artist + ' - ' + title + '.mp3')
+
+	# Записываем ID3 тег в файл.
+	audiofile = eyed3.load(file_name)
+	audiofile.tag.artist = artist
+	audiofile.tag.title = title
+	audiofile.tag.album = album
+	audiofile.tag.genre = genre
+	# audiofile.tag.release_date = date
+	audiofile.tag.publisher = publisher
+	audiofile.tag.save()
+
+	# Задерживаем закачку на случайное время.
+	funcs.rand_pause(sleep_time)
+
+	# Скачиваем картинки по ссылке.
+	if load_img:
+		# Создаем директорию для картинок.
+		img_path = finish_path + 'img/'
+		if not os.path.exists(img_path):
+			os.mkdir(img_path)
+		
+		if not cur_album == album:
+			# Скачиваем первый файл по ссылке.
+			if not image1 == "":
+				img1 = requests.get(image1)
+				# Записываем содержимое в файл.
+				with open(img_path + album +'1.jpg', 'wb') as f:
+					f.write(img1.content)
+				f.close()
+				print('[' + str(percent) + '%]: loaded', image1)
+
+				# Задерживаем закачку на случайное время.
+				funcs.rand_pause(sleep_time)
+
+			# Скачиваем второй файл по ссылке.
+			if not image2 == "":
+				img2 = requests.get(image2)
+				# Записываем содержимое в файл.
+				with open(img_path + album +'2.jpg', 'wb') as f:
+					f.write(img2.content)
+				f.close()
+				print('[' + str(percent) + '%]: loaded', image2)
+
+				# Задерживаем закачку на случайное время.
+				funcs.rand_pause(sleep_time)
+
+			cur_album = album
+
+	i += 1
