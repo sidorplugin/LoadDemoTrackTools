@@ -6,6 +6,11 @@ from bs4 import BeautifulSoup
 from enum import Enum
 from datetime import date
 
+class PageStatus(Enum):
+	none = 0
+	earlier = 1
+	later = 2
+
 source_address = "http://www.deejay.de"
 
 # Функция загружает страницу жанра по ссылке.
@@ -168,11 +173,15 @@ def parse_album(source, table, album_link, text):
 		except:
 			continue
 
-# Функция возвращает номер страницы по дате. Поиск начинается со значения 
-# страницы по-умолчанию.
+# Функция возвращает номер страницы по дате. Если задан бинарный режим  
+# поиск начнется со страницы start_page, иначе будет последовательный
+# поиск с первой страницы.
 def get_number_page_by_date(session, genre, from_date, bynary_mode, start_page):
+	status = PageStatus.none.value
 	finded = False
 	dates_list = []
+	min_page = 0
+	max_page = int(start_page * 2)
 	searched_date = funcs.get_date_for_string(from_date)
 	
 	if bynary_mode:
@@ -185,25 +194,40 @@ def get_number_page_by_date(session, genre, from_date, bynary_mode, start_page):
 		data = load_page(session, page, genre)
 		soup = BeautifulSoup(data, 'html.parser')
 
-		# Ищем заголовки дат на странице и заносим их в список.
+		# Ищем заголовки дат на странице и заносим их в список
+		# в порядке возрастания по времени.
 		for dates in soup.findAll('h2',{'class':'news'}):
 			try:
 				str_date = dates.find('b').text
-				dates_list.append(funcs.get_date_for_string(str_date))
+				dates_list.prepend(funcs.get_date_for_string(str_date))
 			except:
 				print("warning fetch", dates.text)
 		
 		last = len(dates_list) - 1
 		
 		if bynary_mode:
+			# Искомая дата найдена.
 			if dates_list[0] <= searched_date < dates_list[last]:
 				finded = True
+			# Искомая дата не в диапазоне. Ранее.	
 			elif searched_date < dates_list[0]:
-				# todo Если проскочили дату задаем новый диапазон и номер страницы.
-				page = int(page // 2)
-			else:
-				# todo Если проскочили дату задаем новый диапазон и номер страницы.
-				page = int(page * 2)
+				# Если проскочили дату задаем новый диапазон и номер страницы.
+				if status == PageStatus.later.value:
+					limit = page
+				# Расширяем вдвое границу поиска страниц.
+				else:
+					page = int((min_page + max_page) / 2)
+					min_page = page
+				status = PageStatus.earlier.value:
+			# Искомая дата не в диапазоне. Позже.
+			elif searched_date > dates_list[last]:
+				# Если проскочили дату задаем новый диапазон и номер страницы.
+				if status == PageStatus.earlier.value:
+					page = int((min_page + max_page) / 2)
+				else:
+					max_page = page
+					page = int((min_page + max_page) / 2)
+				status = PageStatus.later.value:
 		else:
 			# Завершаем поиск если искомая дата больше последней даты на странице.
 			if searched_date > dates_list[last]:
