@@ -40,13 +40,12 @@ file = open(tracks_path, 'rb')
 funcs.table_from_file(table, file)
 file.close()
 
+print('loading files...')
+
 # Проход по таблице с сохранением каждого файла.
 i = 0
 num_path = 1
 while i < len(table):
-	# if i == 15
-	# 	break
-
 	artist = table[i][funcs.Track.artist.value]
 	album = table[i][funcs.Track.album.value]
 	title = table[i][funcs.Track.title.value]
@@ -112,7 +111,7 @@ while i < len(table):
 				with open(img_path + album +'1.jpg', 'wb') as f:
 					f.write(img1.content)
 				f.close()
-				print('[' + str(percent) + '%]: loaded', image1)
+				print('[' + str(percent) + '%]', image1)
 
 				# Задерживаем закачку на случайное время.
 				funcs.rand_pause(sleep_time)
@@ -124,7 +123,7 @@ while i < len(table):
 				with open(img_path + album +'2.jpg', 'wb') as f:
 					f.write(img2.content)
 				f.close()
-				print('[' + str(percent) + '%]: loaded', image2)
+				print('[' + str(percent) + '%]', image2)
 
 				# Задерживаем закачку на случайное время.
 				funcs.rand_pause(sleep_time)
@@ -132,3 +131,5 @@ while i < len(table):
 			cur_album = album
 
 	i += 1
+
+print('loading files done.')

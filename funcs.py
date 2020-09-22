@@ -1,219 +1,74 @@
-# coding: utf8
-import requests
 import time
 import random
-from bs4 import BeautifulSoup
 from enum import Enum
+from datetime import date
 
 class Track(Enum):
-    artist = 0
-    title = 1
-    album = 2
-    genre = 3
-    catalog = 4
-    publisher = 5
-    date = 6
-    link = 7
-    album_link = 8
-    image1 = 9
-    image2 = 10
-    source = 11
-
-# todo universal func by genre
-def load_page(page, session):
-    url = 'https://www.deejay.de/content.php?param=/m_House/sm_News/perpage_160/page_%d' % (page)
-    request = session.get(url)
-    return request.text
-
-def load_album_page(link, session):
-    url = 'https://www.deejay.de/content.php?param=%s' % (link)
-    request = session.get(url)
-    return request.text
-
-def parse_page(source, file, text):
-    soup = BeautifulSoup(text, 'html.parser')
-
-    if not source.find("deejayde") == -1:
-        source_address = "http://www.deejay.de"
-
-    for albums in soup.findAll('div',{'class':'artikel'}):
-        try:
-            # todo разобраться с ошибками выборки
-            album_link = albums.find('h3', {'class': 'title'}).find('a').get('href')
-            album_link = source_address + album_link
-        except:
-            print("warning fetch", album_link)
-        
-        try:
-            # todo разобраться с кодировкой текста
-            album_link += '\n'
-            bt = album_link.encode()
-            file.write(bt)
-        except: 
-            print("write error:", album_link)
- 
-# Cсылка формируется следующим образом:
-# из href трека берем только суфикс обозначающий номер трека в альбоме (a, b, c ...). 
-# из href первой картинки берем кусок начинающийся после текста "/xl/"
-# к фрагменту "http://www.deejay.de/streamit/" добавляем кусок из href картинки,
-# заменяя ".jpg" на "суфикс.mp3".
-def create_track_link(image_href, track_href):
-    link = "http://www.deejay.de/streamit/"
-    index = image_href.find("/xl/") + 4
-    if index != -1:
-        part = image_href[index:]
-        link += part
-        suffix = track_href[len(track_href) - 1:]
-        link = link.replace(".jpg", suffix + ".mp3")
-        return link
-    else:
-        return ""    
-
-def parse_album(source, table, album_link, text):
-    soup = BeautifulSoup(text, 'html.parser')
-    
-    if not source.find("deejayde") == -1:
-        source_address = "http://www.deejay.de"
-
-    try:
-        artist = soup.find('div',{'class':'artist'}).find('h1').text
-    except:
-        artist = ""
-        print("warning find artist in:", album_link)
-    
-    try:    
-        album = soup.find('div',{'class':'title'}).find('h1').text
-    except:
-        album = ""
-        print("warning find album in:", album_link)
-    
-    try:
-        genre = soup.find('div',{'class':'styles'}).find('a',{'class':'main'}).find('em').text
-    except:
-        genre = ""
-        print("warning find genre in:", album_link)
-    
-    try:
-        catalog = soup.find('div',{'class':'label'}).find('h1').text
-    except:
-        catalog = ""
-        print("warning find catalog in:", album_link)
-    
-    try:
-        label = soup.find('div',{'class':'label'}).find('h3').text
-    except:
-        label = ""
-        print("warning find label in:", album_link)
-    
-    try:
-        date = soup.find('span',{'class':'date'}).text
-        # Убираем в начале строки слово "Release : ".
-        date = date[10:]
-    except:
-        date = ""
-        print("warning find date in:", album_link)
-    
-    try:
-        image1 = soup.find('div',{'class':'img allbig img1'}).find('a',{'class':'noMod'}).get('href')
-        image1 = source_address + image1
-    except:
-        try:
-            image1 = soup.find('div',{'class':'img img1'}).find('a',{'class':'noMod'}).get('href')
-            image1 = source_address + image1
-        except:
-            image1 = ""
-            print("warning find image1 in:", album_link)
-    
-    try:
-        image2 = soup.find('div',{'class':'img allbig img2'}).find('a',{'class':'noMod'}).get('href')
-        image2 = source_address + image2
-    except:
-        try:
-            image2 = soup.find('div',{'class':'img img2'}).find('a',{'class':'noMod'}).get('href')
-            image2 = source_address + image2
-        except:
-            image2 = ""
-            print("warning find image2 in:", album_link)
-
-    source = "deejay.de"
-
-    soup = BeautifulSoup(text, 'html.parser')
-    length = len(table)
-    for tracks in soup.findAll('li'):
-        try:
-            title = tracks.find('a').text
-            # Убираем лишние пробелы.
-            title = ' '.join(title.split())
-            title = title.replace(': ','_')
-            
-            link = create_track_link (image1, tracks.find('a').get('href'))        
-            
-            # Заполняем таблицу данными.
-            table.append([])
-            table[length].append(artist)
-            table[length].append(title)
-            table[length].append(album)
-            table[length].append(genre)
-            table[length].append(catalog)
-            table[length].append(label)
-            table[length].append(date)
-            table[length].append(link)
-            table[length].append(album_link)
-            table[length].append(image1)
-            table[length].append(image2)
-            table[length].append(source)
-        except:
-            continue    
+	artist = 0
+	title = 1
+	album = 2
+	genre = 3
+	catalog = 4
+	publisher = 5
+	date = 6
+	link = 7
+	album_link = 8
+	image1 = 9
+	image2 = 10
+	source = 11
 
 # Функция сохраняет таблицу в файл.
 def save_to_file(file, table):
-    # Размер таблицы
-    rows = len(table)
+	# Размер таблицы
+	rows = len(table)
 
-    # Конвертируем размеры в строчный тип.
-    s_rows = str(rows) + '\n'
+	# Конвертируем размеры в строчный тип.
+	s_rows = str(rows) + '\n'
 
-    # Конвертируем str в bytes 
-    b_rows = s_rows.encode()
+	# Конвертируем str в bytes 
+	b_rows = s_rows.encode()
 
-    # Записываем размеры в файл.
-    file.write(b_rows)
+	# Записываем размеры в файл.
+	file.write(b_rows)
 
-    # Проходим по таблице записывая данные в файл.
-    for row in table:
-        # Записываем строки с символом '\n'
-        for item in row:
-            item += '\n'
-            bt = item.encode()
-            file.write(bt)
+	# Проходим по таблице записывая данные в файл.
+	for row in table:
+		# Записываем строки с символом '\n'
+		for item in row:
+			item += '\n'
+			bt = item.encode()
+			file.write(bt)
 
 # Функция получения таблицы из бинарного файла.
 def table_from_file(table, file):
-    # Считываем количество строк таблицы из файла.
-    s_rows = file.readline()
-    rows = int(s_rows)
+	# Считываем количество строк таблицы из файла.
+	s_rows = file.readline()
+	rows = int(s_rows)
 
-    # Цикл чтения строк и создание матрицы размером rows*12.
-    i = 0
-    while i < rows:
-        # Создаем одну строку списка.
-        row = []
-        j = 0
-        # Заполняем строки.
-        while j < 12:
-            bs = file.readline()
-            # Конвертируем bytes=>str.
-            s = bs.decode()
-            # Убираем '\n'.
-            s = s[:-1]
-            # Добавляем к списку.
-            row += [s]
-            j += 1
+	# Цикл чтения строк и создание матрицы размером rows*12.
+	i = 0
+	while i < rows:
+		# Создаем одну строку списка.
+		row = []
+		j = 0
+		# Заполняем строки.
+		while j < 12:
+			bs = file.readline()
+			# Конвертируем bytes=>str.
+			s = bs.decode()
+			# Убираем '\n'.
+			s = s[:-1]
+			# Добавляем к списку.
+			row += [s]
+			j += 1
 
-        # Добавляем одну строку списка в таблице.
-        table += [row]
-        i += 1
+		# Добавляем одну строку списка в таблице.
+		table += [row]
+		i += 1
 
 def rand_pause(sleep_time):
-    rand_time = random.randint(0, sleep_time)
-    time.sleep(rand_time)
+	rand_time = random.randint(0, sleep_time)
+	time.sleep(rand_time)
+
+def get_date_for_string(dd_mm_yyyy):
+	return date(int(dd_mm_yyyy[6:]), int(dd_mm_yyyy[4:5]), int(dd_mm_yyyy[:2]))
