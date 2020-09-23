@@ -1,5 +1,5 @@
 # Получает треклист по заданным параметрам.
-# track_list.py tracks.bin -s deejayde -g house -f dd.mm.yyyy -t dd.mm.yyyy
+# track_list.py tracks.bin -s deejayde -g house -f dd.mm.yyyy -t dd.mm.yyyy -b 1
 	# file - выходной файл для записи *.bin
 	# s - источник [deejayde, juno, hardwax]
 	# g - жанр [techno, house, exclusive, ambient]
@@ -24,7 +24,8 @@ parser.add_argument ('-s', '--source', choices=['deejayde', 'juno', 'hardwax'], 
 parser.add_argument ('-g', '--genre', choices=['techno', 'house', 'exclusive', 'ambient'], default='techno')
 parser.add_argument ('-f', '--from_date', default='')
 parser.add_argument ('-t', '--to_date', default='')
-parser.add_argument ('-b', '--bynary_mode', default=0)
+parser.add_argument ('-b', '--binary_mode', default=0)
+parser.add_argument ('-p', '--start_page', default=150)
 
 namespace = parser.parse_args (sys.argv[1:])
 
@@ -33,10 +34,10 @@ source = namespace.source
 genre = namespace.genre
 from_date = namespace.from_date
 to_date = namespace.to_date
-bynary_mode = namespace.bynary_mode
+binary_mode = namespace.binary_mode
+start_page = int(namespace.start_page)
 
-# todo Проверки соответствия источника и жанра.
-
+# Сессия.
 s = requests.Session() 
 s.headers.update({
 				'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:71.0) Gecko/20100101 Firefox/71.0'
@@ -50,13 +51,15 @@ if to_date == "":
 	to_date = funcs.get_string_for_date(date.today())
 	print(to_date)
 
-print('searching max page for', genre, '...')
-max_page = deejayde.get_max_page(s, genre, 80)
+max_page = 0
+if binary_mode:
+	print('searching max page for', genre, '...')
+	max_page = deejayde.get_max_page(s, genre, start_page)
 
 # Определяем диапазон страниц которые соответствуют запросу по дате.
 print('searching pages for date range [' + from_date, '-', to_date + ']')
-to_page = deejayde.get_number_page_by_date(s, genre, from_date, bynary_mode, 249, False)
-from_page = deejayde.get_number_page_by_date(s, genre, to_date, bynary_mode, 249, True)
+to_page = deejayde.get_number_page_by_date(s, genre, from_date, binary_mode, max_page, False)
+from_page = deejayde.get_number_page_by_date(s, genre, to_date, binary_mode, max_page, True)
 
 if to_page == 0 or from_page == 0:
 	print('error: no date for your request.')
@@ -69,7 +72,7 @@ page = from_page
 f = open(albums_path, 'ab')
 
 # Загружаем контент каждой страницы.
-print('\nloading albums info...')
+print('loading albums info...')
 while page <= to_page:
 	print('loading page', page, 'from', to_page)
 	data = deejayde.load_page(s, page, genre)

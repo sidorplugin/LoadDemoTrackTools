@@ -217,7 +217,7 @@ def get_number_page_by_date(session, genre, from_date, bynary_mode, max_page, be
 					# print(searched_date, 'equal first:', page, '[', dates_list[0], '-', dates_list[last], ']', begin)
 					if begin and page != 1:
 						page -= 1
-				print('done.', from_date, "finded in", page, 'page')
+				print('done.', from_date, "finded in", page, 'page\n')
 				finded = True
 			
 			# Искомая дата не в диапазоне. Ранее.	
@@ -242,7 +242,7 @@ def get_number_page_by_date(session, genre, from_date, bynary_mode, max_page, be
 						page += 1
 				finded = True
 				# print(searched_date, "finded", '[', dates_list[0], '-', dates_list[last], ']', page, begin)
-				print('done.', from_date, "finded in", page, 'page')
+				print('done.', from_date, "finded in", page, 'page\n')
 			else:
 				page += 1
 				# print(searched_date, "next", '[', dates_list[0], '-', dates_list[last], ']', page, begin)
@@ -263,7 +263,7 @@ def get_max_page(session, genre, start_page):
 	while not finded:
 		prev_page = page
 		# Загружаем контент страницы.
-		print('...searching max_page in', page, 'page')
+		print('...searching max page in', page, 'page')
 		data = load_page(session, page, genre)
 		soup = BeautifulSoup(data, 'html.parser')
 
@@ -273,18 +273,18 @@ def get_max_page(session, genre, start_page):
 				max_page = page
 				page = int((min_page + max_page) / 2)
 				over = True
-				print('no data in', max_page, 'page', '[', min_page, '-', max_page, ']')
+				# print('no data in', max_page, 'page', '[', min_page, '-', max_page, ']')
 		except:
 			min_page = page
 			if not over:
 				page = int(page * 2)
-				print('data exists in', min_page, 'page', '[', min_page, '-', max_page, ']')
+				# print('data exists in', min_page, 'page', '[', min_page, '-', max_page, ']')
 			else:
 				page = int((min_page + max_page) / 2)
-				print('data exists in', min_page, 'page', '[', min_page, '-', max_page, ']')
+				# print('data exists in', min_page, 'page', '[', min_page, '-', max_page, ']')
 
 		if prev_page == page:
-			print('done. max page finded in', page, 'page')
+			print('done. max page finded in', page, 'page\n')
 			finded = True
 
 	return page
