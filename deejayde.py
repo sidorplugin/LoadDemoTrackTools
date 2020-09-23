@@ -29,7 +29,7 @@ def load_album_page(session, link):
 	return request.text
 
 # Функция парсит альбомы на странице, записывая их в бинарный файл.
-def parse_page(source, file, text):	
+def parse_page(file, text):	
 	soup = BeautifulSoup(text, 'html.parser')
 
 	i = 0
@@ -74,7 +74,7 @@ def create_track_link(image_href, track_href):
 		return ""    
 
 # Функция парсит треки в альбоме, записывая результат в таблицу.
-def parse_album(source, table, album_link, text):
+def parse_album(table, album_link, text):
 	soup = BeautifulSoup(text, 'html.parser')
 	try:
 		artist = soup.find('div',{'class':'artist'}).find('h1').text
