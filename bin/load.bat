@@ -2,5 +2,10 @@ cd %~dp0
 cd ..
 echo off
 cls
-python track_loader.py house2.bin -d d:/Music
+REM входной файл для записи
+REM d - директория для сохранения, default=""
+REM i - признак загрузки картинок [0,1], default=0
+REM s - максимальное время задержки между загрузками, default=5
+REM m - максимальное количество треков в директории, default=2000
+python track_loader.py house3.bin -d d:/Music
 pause

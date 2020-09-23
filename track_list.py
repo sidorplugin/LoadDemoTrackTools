@@ -1,11 +1,13 @@
 # Получает треклист по заданным параметрам.
 # track_list.py tracks.bin -s deejayde -g house -f dd.mm.yyyy -t dd.mm.yyyy -b 1
 	# file - выходной файл для записи *.bin
-	# s - источник [deejayde, juno, hardwax]
-	# g - жанр [techno, house, exclusive, ambient]
-	# f - начальная дата поиска, ранняя [dd.mm.yyyy]
-	# t - конечная дата поиска, поздняя [dd.mm.yyyy]
-	# b - бинарный поиск даты [0,1]
+	# s - источник [deejayde, juno, hardwax], default=deejayde
+	# g - жанр [techno, house, exclusive, ambient], default=techno
+	# f - начальная дата поиска, ранняя [dd.mm.yyyy], default=today
+	# t - конечная дата поиска, поздняя [dd.mm.yyyy], default=today
+	# b - бинарный поиск даты [0,1], default=0
+	# p - стартовая страница поиска максимальной страницы,
+	#     имеет значение только при  b = 1, default=150
 
 import argparse
 import requests

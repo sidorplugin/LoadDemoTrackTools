@@ -1,10 +1,10 @@
 # Загрузчик треков.
 # track_loader.py tracks.bin -d D:/Music -i 1 -s 5 -m 2000
 	# входной файл для записи
-	# d - директория для сохранения
-	# i - признак загрузки картинок, 0 - не загружать, 1 - загружать.
-	# s - максимальное время задержки между загрузками
-	# m - максимальное количество треков в директории 
+	# d - директория для сохранения, default="" 
+	# i - признак загрузки картинок [0,1], default=0
+	# s - максимальное время задержки между загрузками, default=5
+	# m - максимальное количество треков в директории, default=2000
 
 import argparse
 import requests
@@ -40,7 +40,7 @@ file = open(tracks_path, 'rb')
 funcs.table_from_file(table, file)
 file.close()
 
-print('loading files...')
+print('loading files from', tracks_path, 'to', root_path + ':')
 
 # Проход по таблице с сохранением каждого файла.
 i = 0
