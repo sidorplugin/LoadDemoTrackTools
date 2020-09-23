@@ -8,6 +8,8 @@
 	# b - бинарный поиск даты [0,1], default=0
 	# p - стартовая страница поиска максимальной страницы,
 	#     имеет значение только при  b = 1, default=150
+	# m - принудительное указание максимальной страницы,
+    #     имеет значение только при b = 1, default=0
 
 import argparse
 import requests
@@ -28,6 +30,7 @@ parser.add_argument ('-f', '--from_date', default='')
 parser.add_argument ('-t', '--to_date', default='')
 parser.add_argument ('-b', '--binary_mode', default=0)
 parser.add_argument ('-p', '--start_page', default=150)
+parser.add_argument ('-m', '--max_page', default=0)
 
 namespace = parser.parse_args (sys.argv[1:])
 
@@ -38,6 +41,7 @@ from_date = namespace.from_date
 to_date = namespace.to_date
 binary_mode = namespace.binary_mode
 start_page = int(namespace.start_page)
+max_page = int(namespace.max_page)
 
 # Сессия.
 s = requests.Session() 
@@ -53,10 +57,10 @@ if to_date == "":
 	to_date = funcs.get_string_for_date(date.today())
 	print(to_date)
 
-max_page = 0
 if binary_mode:
-	print('searching max page for', genre, '...')
-	max_page = deejayde.get_max_page(s, genre, start_page)
+	if max_page == 0:
+		print('searching max page for', genre, '...')
+		max_page = deejayde.get_max_page(s, genre, start_page)
 
 # Определяем диапазон страниц которые соответствуют запросу по дате.
 print('searching pages for date range [' + from_date, '-', to_date + ']')

@@ -10,5 +10,7 @@ REM t - конечная дата поиска, поздняя [dd.mm.yyyy], def
 REM b - бинарный поиск даты [0,1], default=0
 REM p - стартовая страница поиска максимальной страницы,
 REM	    имеет значение только при b = 1, default=150
-python track_list.py house2.bin -s deejayde -g house -f 01.02.2020 -t 01.03.2020 -b 1 -p 125
+REM m - принудительное указание максимальной страницы,
+REM	    имеет значение только при b = 1, default=0
+python track_list.py house2.bin -s deejayde -g house -f 01.01.2020 -t 01.02.2020 -b 1 -m 249
 pause
