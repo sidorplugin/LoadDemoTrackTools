@@ -5,7 +5,6 @@
 	# g - жанр [techno, house, exclusive, ambient]
 	# f - начальная дата поиска, ранняя [dd.mm.yyyy]
 	# t - конечная дата поиска, поздняя [dd.mm.yyyy]
-	# p - страница с которой начинается бинарный поиск даты (при -b 1)
 	# b - бинарный поиск даты [0,1]
 
 import argparse
@@ -25,7 +24,6 @@ parser.add_argument ('-s', '--source', choices=['deejayde', 'juno', 'hardwax'], 
 parser.add_argument ('-g', '--genre', choices=['techno', 'house', 'exclusive', 'ambient'], default='techno')
 parser.add_argument ('-f', '--from_date', default='')
 parser.add_argument ('-t', '--to_date', default='')
-parser.add_argument ('-p', '--page', default=1)
 parser.add_argument ('-b', '--bynary_mode', default=0)
 
 namespace = parser.parse_args (sys.argv[1:])
@@ -35,7 +33,6 @@ source = namespace.source
 genre = namespace.genre
 from_date = namespace.from_date
 to_date = namespace.to_date
-start_page = int(namespace.page)
 bynary_mode = namespace.bynary_mode
 
 # todo Проверки соответствия источника и жанра.
@@ -53,10 +50,13 @@ if to_date == "":
 	to_date = funcs.get_string_for_date(date.today())
 	print(to_date)
 
+print('searching max page for', genre, '...')
+max_page = deejayde.get_max_page(s, genre, 80)
+
 # Определяем диапазон страниц которые соответствуют запросу по дате.
 print('searching pages for date range [' + from_date, '-', to_date + ']')
-to_page = deejayde.get_number_page_by_date(s, genre, from_date, bynary_mode, start_page, False)
-from_page = deejayde.get_number_page_by_date(s, genre, to_date, bynary_mode, start_page, True)
+to_page = deejayde.get_number_page_by_date(s, genre, from_date, bynary_mode, 249, False)
+from_page = deejayde.get_number_page_by_date(s, genre, to_date, bynary_mode, 249, True)
 
 if to_page == 0 or from_page == 0:
 	print('error: no date for your request.')

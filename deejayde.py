@@ -6,11 +6,6 @@ from bs4 import BeautifulSoup
 from enum import Enum
 from datetime import date
 
-class PageStatus(Enum):
-	none = 0
-	earlier = 1
-	later = 2
-
 source_address = "http://www.deejay.de"
 
 # Функция загружает страницу жанра по ссылке.
@@ -173,20 +168,17 @@ def parse_album(source, table, album_link, text):
 		except:
 			continue
 
-# Функция возвращает номер страницы по дате. Если задан бинарный режим  
-# поиск начнется со страницы start_page, иначе будет последовательный
-# поиск с первой страницы.
-def get_number_page_by_date(session, genre, from_date, bynary_mode, start_page, begin):
-	status = PageStatus.none.value
+# Функция возвращает номер страницы по дате. Если не задан бинарный режим  
+# поиск начнется с первой страницы.
+def get_number_page_by_date(session, genre, from_date, bynary_mode, max_page, begin):
 	finded = False
 	dates_list = []
 	prev_page = 0
 	min_page = 0
-	max_page = int(start_page * 2)
 	searched_date = funcs.get_date_for_string(from_date)
 
 	if bynary_mode:
-		page = start_page
+		page = int (max_page // 2)
 	else:
 		page = 1
 
@@ -210,14 +202,13 @@ def get_number_page_by_date(session, genre, from_date, bynary_mode, start_page, 
 		
 		last = len(dates_list) - 1
 
+		# Бинарный режим.
 		if bynary_mode:
 			# Искомая дата найдена.
 			if dates_list[last] <= searched_date <= dates_list[0]:
 				# print(searched_date, "finded", '[', dates_list[0], '-', dates_list[last], ']', page, '[', min_page, '-', max_page, ']')
 				# Если искомая дата находится в крайних положениях диапазона,
-				# то с большой степенью вероятности альбомы этой же даты также
-				# могут быть на соседней странице. В этом случае считаем соседнюю
-				# страницу за результат.
+				# считаем соседнюю страницу за результат.
 				if searched_date == dates_list[last]:
 					# print(searched_date, 'equal last:', page, '[', dates_list[0], '-', dates_list[last], ']', begin)
 					if not begin:
@@ -231,34 +222,20 @@ def get_number_page_by_date(session, genre, from_date, bynary_mode, start_page, 
 			
 			# Искомая дата не в диапазоне. Ранее.	
 			elif searched_date < dates_list[last]:
-				# Если проскочили дату задаем новый диапазон и номер страницы.
-				if status == PageStatus.later.value:
-					min_page = page
-					page = int((min_page + max_page) / 2)
-					# print(searched_date, "earlier over", '[', dates_list[0], '-', dates_list[last], ']', min_page, '[', min_page, '-', max_page, ']')
-				else:
-					min_page = page
-					page = int((min_page + max_page) / 2)
-					# print(searched_date, "earlier", '[', dates_list[0], '-', dates_list[last], ']', min_page, '[', min_page, '-', max_page, ']')
+				min_page = page
+				page = int((min_page + max_page) / 2)
+				# print(searched_date, "earlier", '[', dates_list[0], '-', dates_list[last], ']', min_page, '[', min_page, '-', max_page, ']')
 
-				status = PageStatus.earlier.value
-			
 			# Искомая дата не в диапазоне. Позже.
 			elif searched_date > dates_list[0]:
-				# Если проскочили дату задаем новый диапазон и номер страницы.
-				if status == PageStatus.earlier.value:
-					max_page = page
-					page = int((min_page + max_page) / 2)
-					# print(searched_date, "later over", '[', dates_list[0], '-', dates_list[last], ']', max_page, '[', min_page, '-', max_page, ']')
-				else:
-					max_page = page
-					page = int((min_page + max_page) / 2)
-					# print(searched_date, "later", '[', dates_list[0], '-', dates_list[last], ']', max_page, '[', min_page, '-', max_page, ']')
-				status = PageStatus.later.value
+				max_page = page
+				page = int((min_page + max_page) / 2)
+				# print(searched_date, "later", '[', dates_list[0], '-', dates_list[last], ']', max_page, '[', min_page, '-', max_page, ']')
+		# Линейный режим.
 		else:
 			# Завершаем поиск если искомая дата больше последней даты на странице.
 			if searched_date >= dates_list[last]:
-				# todo Проверка на крайнее положение даты в диапазоне.
+				# Проверка на крайнее положение даты в диапазоне.
 				if searched_date == dates_list[last]:
 					# print(searched_date, 'equal last:', '[', dates_list[0], '-', dates_list[last], ']', page, begin)
 					if not begin:
@@ -272,4 +249,42 @@ def get_number_page_by_date(session, genre, from_date, bynary_mode, start_page, 
 
 		dates_list.clear()
 	
+	return page
+
+# Функция возвращает максимальный номер страницы для жанра.
+def get_max_page(session, genre, start_page):
+	over = False
+	finded = False
+	min_page = 0
+	max_page = 0
+	prev_page = 0
+	page = start_page
+
+	while not finded:
+		prev_page = page
+		# Загружаем контент страницы.
+		print('...searching max_page in', page, 'page')
+		data = load_page(session, page, genre)
+		soup = BeautifulSoup(data, 'html.parser')
+
+		# Проверяем есть ли данные на странице.
+		try:
+			for dates in soup.find('div',{'class':'noMatch'}):
+				max_page = page
+				page = int((min_page + max_page) / 2)
+				over = True
+				print('no data in', max_page, 'page', '[', min_page, '-', max_page, ']')
+		except:
+			min_page = page
+			if not over:
+				page = int(page * 2)
+				print('data exists in', min_page, 'page', '[', min_page, '-', max_page, ']')
+			else:
+				page = int((min_page + max_page) / 2)
+				print('data exists in', min_page, 'page', '[', min_page, '-', max_page, ']')
+
+		if prev_page == page:
+			print('done. max page finded in', page, 'page')
+			finded = True
+
 	return page
