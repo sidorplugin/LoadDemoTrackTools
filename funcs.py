@@ -1,5 +1,6 @@
 import time
 import random
+import datetime
 from enum import Enum
 from datetime import date
 
@@ -71,4 +72,7 @@ def rand_pause(sleep_time):
 	time.sleep(rand_time)
 
 def get_date_for_string(dd_mm_yyyy):
-	return date(int(dd_mm_yyyy[6:]), int(dd_mm_yyyy[4:5]), int(dd_mm_yyyy[:2]))
+	return datetime.datetime.strptime(dd_mm_yyyy, '%d.%m.%Y').date()
+
+def get_string_for_date(date):
+	return str(date.day) + '.' + str(date.month) + '.' + str(date.year)

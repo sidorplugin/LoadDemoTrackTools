@@ -176,14 +176,15 @@ def parse_album(source, table, album_link, text):
 # Функция возвращает номер страницы по дате. Если задан бинарный режим  
 # поиск начнется со страницы start_page, иначе будет последовательный
 # поиск с первой страницы.
-def get_number_page_by_date(session, genre, from_date, bynary_mode, start_page):
+def get_number_page_by_date(session, genre, from_date, bynary_mode, start_page, begin):
 	status = PageStatus.none.value
 	finded = False
 	dates_list = []
+	prev_page = 0
 	min_page = 0
 	max_page = int(start_page * 2)
 	searched_date = funcs.get_date_for_string(from_date)
-	
+
 	if bynary_mode:
 		page = start_page
 	else:
@@ -191,6 +192,7 @@ def get_number_page_by_date(session, genre, from_date, bynary_mode, start_page):
 
 	while not finded:
 		# Загружаем контент страницы.
+		print('...searching', from_date, 'in', page, 'page')
 		data = load_page(session, page, genre)
 		soup = BeautifulSoup(data, 'html.parser')
 
@@ -199,41 +201,74 @@ def get_number_page_by_date(session, genre, from_date, bynary_mode, start_page):
 		for dates in soup.findAll('h2',{'class':'news'}):
 			try:
 				str_date = dates.find('b').text
-				dates_list.prepend(funcs.get_date_for_string(str_date))
+				dates_list.append(funcs.get_date_for_string(str_date))
 			except:
 				print("warning fetch", dates.text)
+
+		if len(dates_list) == 0:
+			return 0
 		
 		last = len(dates_list) - 1
-		
+
 		if bynary_mode:
 			# Искомая дата найдена.
-			if dates_list[0] <= searched_date < dates_list[last]:
+			if dates_list[last] <= searched_date <= dates_list[0]:
+				# print(searched_date, "finded", '[', dates_list[0], '-', dates_list[last], ']', page, '[', min_page, '-', max_page, ']')
+				# Если искомая дата находится в крайних положениях диапазона,
+				# то с большой степенью вероятности альбомы этой же даты также
+				# могут быть на соседней странице. В этом случае считаем соседнюю
+				# страницу за результат.
+				if searched_date == dates_list[last]:
+					# print(searched_date, 'equal last:', page, '[', dates_list[0], '-', dates_list[last], ']', begin)
+					if not begin:
+						page += 1
+				elif searched_date == dates_list[0]:
+					# print(searched_date, 'equal first:', page, '[', dates_list[0], '-', dates_list[last], ']', begin)
+					if begin and page != 1:
+						page -= 1
+				print('done.', from_date, "finded in", page, 'page')
 				finded = True
+			
 			# Искомая дата не в диапазоне. Ранее.	
-			elif searched_date < dates_list[0]:
+			elif searched_date < dates_list[last]:
 				# Если проскочили дату задаем новый диапазон и номер страницы.
 				if status == PageStatus.later.value:
-					limit = page
-				# Расширяем вдвое границу поиска страниц.
-				else:
-					page = int((min_page + max_page) / 2)
 					min_page = page
-				status = PageStatus.earlier.value:
+					page = int((min_page + max_page) / 2)
+					# print(searched_date, "earlier over", '[', dates_list[0], '-', dates_list[last], ']', min_page, '[', min_page, '-', max_page, ']')
+				else:
+					min_page = page
+					page = int((min_page + max_page) / 2)
+					# print(searched_date, "earlier", '[', dates_list[0], '-', dates_list[last], ']', min_page, '[', min_page, '-', max_page, ']')
+
+				status = PageStatus.earlier.value
+			
 			# Искомая дата не в диапазоне. Позже.
-			elif searched_date > dates_list[last]:
+			elif searched_date > dates_list[0]:
 				# Если проскочили дату задаем новый диапазон и номер страницы.
 				if status == PageStatus.earlier.value:
+					max_page = page
 					page = int((min_page + max_page) / 2)
+					# print(searched_date, "later over", '[', dates_list[0], '-', dates_list[last], ']', max_page, '[', min_page, '-', max_page, ']')
 				else:
 					max_page = page
 					page = int((min_page + max_page) / 2)
-				status = PageStatus.later.value:
+					# print(searched_date, "later", '[', dates_list[0], '-', dates_list[last], ']', max_page, '[', min_page, '-', max_page, ']')
+				status = PageStatus.later.value
 		else:
 			# Завершаем поиск если искомая дата больше последней даты на странице.
-			if searched_date > dates_list[last]:
+			if searched_date >= dates_list[last]:
+				# todo Проверка на крайнее положение даты в диапазоне.
+				if searched_date == dates_list[last]:
+					# print(searched_date, 'equal last:', '[', dates_list[0], '-', dates_list[last], ']', page, begin)
+					if not begin:
+						page += 1
 				finded = True
+				# print(searched_date, "finded", '[', dates_list[0], '-', dates_list[last], ']', page, begin)
+				print('done.', from_date, "finded in", page, 'page')
 			else:
 				page += 1
+				# print(searched_date, "next", '[', dates_list[0], '-', dates_list[last], ']', page, begin)
 
 		dates_list.clear()
 	

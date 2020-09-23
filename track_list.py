@@ -10,9 +10,9 @@
 
 import argparse
 import requests
-import datetime
 import sys
 import os
+from datetime import date
 from bs4 import BeautifulSoup
 
 import funcs
@@ -23,8 +23,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument ('bin_result', nargs=1)
 parser.add_argument ('-s', '--source', choices=['deejayde', 'juno', 'hardwax'], default='deejayde')
 parser.add_argument ('-g', '--genre', choices=['techno', 'house', 'exclusive', 'ambient'], default='techno')
-parser.add_argument ('-f', '--from_date')
-parser.add_argument ('-t', '--to_date')
+parser.add_argument ('-f', '--from_date', default='')
+parser.add_argument ('-t', '--to_date', default='')
 parser.add_argument ('-p', '--page', default=1)
 parser.add_argument ('-b', '--bynary_mode', default=0)
 
@@ -35,7 +35,7 @@ source = namespace.source
 genre = namespace.genre
 from_date = namespace.from_date
 to_date = namespace.to_date
-start_page = namespace.page
+start_page = int(namespace.page)
 bynary_mode = namespace.bynary_mode
 
 # todo Проверки соответствия источника и жанра.
@@ -47,15 +47,20 @@ s.headers.update({
 
 # Даты по-умолчанию.
 if from_date == "":
-	from_date = date.today();
+	from_date = funcs.get_string_for_date(date.today())
+	print(from_date)
 if to_date == "":
-	to_date = date.today();
+	to_date = funcs.get_string_for_date(date.today())
+	print(to_date)
 
 # Определяем диапазон страниц которые соответствуют запросу по дате.
-print('searching pages for date range...')
-to_page = deejayde.get_number_page_by_date(s, genre, from_date, bynary_mode, start_page)
-from_page = deejayde.get_number_page_by_date(s, genre, to_date, bynary_mode, start_page)
-print('searching pages for date range done')
+print('searching pages for date range [' + from_date, '-', to_date + ']')
+to_page = deejayde.get_number_page_by_date(s, genre, from_date, bynary_mode, start_page, False)
+from_page = deejayde.get_number_page_by_date(s, genre, to_date, bynary_mode, start_page, True)
+
+if to_page == 0 or from_page == 0:
+	print('error: no date for your request.')
+	sys.exit()
 
 albums_path = 'albums.bin'
 page = from_page
@@ -64,7 +69,7 @@ page = from_page
 f = open(albums_path, 'ab')
 
 # Загружаем контент каждой страницы.
-print('loading albums info...')
+print('\nloading albums info...')
 while page <= to_page:
 	print('loading page', page, 'from', to_page)
 	data = deejayde.load_page(s, page, genre)
