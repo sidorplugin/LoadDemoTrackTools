@@ -268,13 +268,9 @@ def get_max_page(session, genre, start_page):
 		soup = BeautifulSoup(data, 'html.parser')
 
 		# Проверяем есть ли данные на странице.
-		try:
-			for dates in soup.find('div',{'class':'noMatch'}):
-				max_page = page
-				page = int((min_page + max_page) / 2)
-				over = True
-				# print('no data in', max_page, 'page', '[', min_page, '-', max_page, ']')
-		except:
+		date = soup.find('div',{'class':'noMatch'})
+		# Есть данные датировок на странице.
+		if date is None:
 			min_page = page
 			if not over:
 				page = int(page * 2)
@@ -282,6 +278,12 @@ def get_max_page(session, genre, start_page):
 			else:
 				page = int((min_page + max_page) / 2)
 				# print('data exists in', min_page, 'page', '[', min_page, '-', max_page, ']')
+		# Нет данных датировок на странице.
+		else:
+			max_page = page
+			page = int((min_page + max_page) / 2)
+			over = True
+			# print('no data in', max_page, 'page', '[', min_page, '-', max_page, ']')
 
 		if prev_page == page:
 			print('done. max page finded in', page, 'page\n')
