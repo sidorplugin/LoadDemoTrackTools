@@ -17,7 +17,7 @@ def load_page(session, page, genre):
 	elif genre == 'exclusive':
 		url = 'https://www.deejay.de/content.php?param=/m_Exclusive/sm_News/sort_voe/perpage_160/page_%d' % (page)
 	else:
-		url = 'https://www.deejay.de/content.php?param=/m_Beats/sm_News/substyles_503_505_519_509/sort_voe/perpage_160/page_%d' % (page)
+		url = 'https://www.deejay.de/content.php?param=/m_Beats/sm_News/substyles_526_503_505_519_509/sort_voe/perpage_160/page_%d' % (page)
 
 	request = session.get(url)
 	return request.text
