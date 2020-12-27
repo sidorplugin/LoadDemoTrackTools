@@ -63,6 +63,10 @@ while i < len(table):
 			os.mkdir(finish_path)
 		num_path += 1
 
+	# Проверяем название артиста и трека на наличие "/", меняем его на "_".
+	artist = artist.replace('/', '_');
+	title = title.replace('/', '_');
+
 	# Определяем имя файла.
 	file_name = finish_path + artist + ' - ' + title + '.mp3'
 	
