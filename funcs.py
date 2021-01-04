@@ -17,6 +17,8 @@ class Track(Enum):
 	image1 = 9
 	image2 = 10
 	source = 11
+	track_id = 12
+	last = 13
 
 # Функция сохраняет таблицу в файл.
 def save_to_file(file, table):
@@ -53,7 +55,7 @@ def table_from_file(table, file):
 		row = []
 		j = 0
 		# Заполняем строки.
-		while j < 12:
+		while j < Track.last.value:
 			bs = file.readline()
 			# Конвертируем bytes=>str.
 			s = bs.decode()

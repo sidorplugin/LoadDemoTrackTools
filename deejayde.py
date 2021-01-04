@@ -34,6 +34,7 @@ def parse_page(file, text):
 
 	i = 0
 	for albums in soup.findAll('div',{'class':'artikel'}):
+		# TODO вынести за цикл
 		albums_size = len(soup('div',{'class':'artikel'}))
 		try:
 			album_link = albums.find('h3', {'class': 'title'}).find('a').get('href')
@@ -109,7 +110,7 @@ def parse_album(table, album_link, text):
 	try:
 		date = soup.find('span',{'class':'date'}).text
 		# Убираем в начале строки слово "Release : ".
-		date = date[10:]
+		date = date[10:20]
 	except:
 		date = ""
 		print("warning find date in:", album_link)
@@ -140,14 +141,15 @@ def parse_album(table, album_link, text):
 
 	soup = BeautifulSoup(text, 'html.parser')
 	length = len(table)
+	num = 1
 	for tracks in soup.findAll('li'):
 		try:
 			title = tracks.find('a').text
 			# Убираем лишние пробелы.
 			title = ' '.join(title.split())
-			title = title.replace(': ','_')
-			
-			link = create_track_link (image1, tracks.find('a').get('href'))        
+			title = title.replace(': ','_')			
+			link = create_track_link (image1, tracks.find('a').get('href'))
+			track_id = "%s_%d" % (catalog, num)
 			
 			# Заполняем таблицу данными.
 			table.append([])
@@ -163,8 +165,10 @@ def parse_album(table, album_link, text):
 			table[length].append(image1)
 			table[length].append(image2)
 			table[length].append(source)
+			table[length].append(track_id)
 
 			print('    ', artist, '-', title)
+			num += 1
 		except:
 			continue
 

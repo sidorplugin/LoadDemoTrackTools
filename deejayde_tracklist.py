@@ -1,5 +1,5 @@
 # Получает треклист с ресурса "http://www.deejay.de" по заданным параметрам.
-# deejayde_tracklist.py tracks.bin -s deejayde -g house -f dd.mm.yyyy -t dd.mm.yyyy -b 1
+# deejayde_tracklist.py tracks.bin -g house -f dd.mm.yyyy -t dd.mm.yyyy -b 1
 	# file - выходной файл для записи *.bin
 	# g - жанр [techno, house, exclusive, ambient], default=techno
 	# f - начальная дата поиска, ранняя [dd.mm.yyyy], default=today
