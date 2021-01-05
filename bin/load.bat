@@ -17,5 +17,5 @@ REM s - максимальное время задержки между загр
 REM m - максимальное количество треков в директории, default=2000
 
 path=%userprofile%/AppData/Local/Programs/Python/Python38-32
-python track_loader.py house3.bin -d d:/Music
+python track_loader.py output.bin -d c:/Music
 pause

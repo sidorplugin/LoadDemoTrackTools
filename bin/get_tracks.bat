@@ -1,6 +1,6 @@
 REM Скрипт скачивает с ресурсов "http://www.deejay.de" и "https://juno.co.uk" треки жанра за заданный период
 
-REM Например: get_tracks.bat "D:/Music" house 01.03.2020 01.04.2020 0 5 2000
+REM Например: get_tracks.bat C:/Music house 01.03.2020 01.04.2020 0 5 2000
 
 cd %~dp0
 

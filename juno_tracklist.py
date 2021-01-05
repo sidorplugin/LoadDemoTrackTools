@@ -43,7 +43,7 @@ if to_date == "":
 	print(to_date)
 
 # Определяем количество страниц которые соответствуют запросу.
-print('searching pages for date range [' + from_date, '-', to_date + ']')
+print('juno.co.uk: searching pages for date range [' + from_date, '-', to_date + ']')
 from_unix_time = funcs.get_datetime_for_string(from_date)
 to_unix_time = funcs.get_datetime_for_string(to_date)
 to_page = juno.get_max_page(s, genre, from_unix_time, to_unix_time)
@@ -58,14 +58,14 @@ page = 1
 table = []
 
 # Загружаем контент с каждой страницы.
-print('loading tracks info...')
+print('juno.co.uk: loading tracks info...')
 while page <= to_page:
-	print('loading page', page, 'from', to_page)
+	print('juno.co.uk: loading page', page, 'from', to_page)
 	data = juno.load_page(s, page, from_unix_time.timestamp(), to_unix_time.timestamp(), genre)
 	# Парсим страницу получая ссылки на треки.
 	juno.parse_page(data, table, genre)
 	page += 1
-print('loading tracks info done.')
+print('juno.co.uk: loading tracks info done.')
 
 # Сохраняем информацию о треках в файл tracks.bin.
 ft = open(tracks_path, 'wb')

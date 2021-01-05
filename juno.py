@@ -11,7 +11,6 @@ source_address = "https://www.juno.co.uk"
 # Функция загружает страницу жанра по ссылке.
 def load_page(session, page, from_date, to_date, genre):
 	url = 'https://www.juno.co.uk/{}/back-cat/{}/?facet[daterange][0]={}TO{}'.format(genre, page, int(from_date), int(to_date))
-	print(url)
 	request = session.get(url)
 	return request.text
 
