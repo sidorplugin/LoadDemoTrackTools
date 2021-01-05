@@ -56,8 +56,8 @@ def parse_album(albums, percent, table, genre):
 	except:
 		print("warning find image")
 
-	image1 = image1.replace('/150/', '/300/').replace('.jpg','-MED.jpg')
-	image2 = image1.replace('A-MED.jpg', 'B-MED.jpg')
+	image1 = image1.replace('/150/', '/full/').replace('.jpg','-BIG.jpg')
+	image2 = image1.replace('A-BIG.jpg', 'B-BIG.jpg')
 	source = "juno.co.uk"
 
 	length = len(table)

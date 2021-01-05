@@ -42,9 +42,7 @@ max_page = int(namespace.max_page)
 
 # Сессия.
 s = requests.Session() 
-s.headers.update({
-				'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:71.0) Gecko/20100101 Firefox/71.0'
-		})
+s.headers.update({'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:71.0) Gecko/20100101 Firefox/71.0'})
 
 # Даты по-умолчанию.
 if from_date == "":

@@ -78,3 +78,28 @@ def get_date_for_string(dd_mm_yyyy):
 
 def get_string_for_date(date):
 	return str(date.day) + '.' + str(date.month) + '.' + str(date.year)
+
+def track_exist(table, track_id):
+	i = 0
+	while i < len(table):
+		if track_id == table[i][Track.track_id.value]:
+			return True
+		i += 1
+	return False
+
+def track_copy(src_table, src_pos, dst_table, dst_pos):
+	# Записываем параметры в результирующую таблицу из источника
+	dst_table.append([])
+	dst_table[dst_pos].append(src_table[src_pos][Track.artist.value])
+	dst_table[dst_pos].append(src_table[src_pos][Track.title.value])
+	dst_table[dst_pos].append(src_table[src_pos][Track.album.value])
+	dst_table[dst_pos].append(src_table[src_pos][Track.genre.value])
+	dst_table[dst_pos].append(src_table[src_pos][Track.catalog.value])
+	dst_table[dst_pos].append(src_table[src_pos][Track.publisher.value])
+	dst_table[dst_pos].append(src_table[src_pos][Track.date.value])
+	dst_table[dst_pos].append(src_table[src_pos][Track.link.value])
+	dst_table[dst_pos].append(src_table[src_pos][Track.album_link.value])
+	dst_table[dst_pos].append(src_table[src_pos][Track.image1.value])
+	dst_table[dst_pos].append(src_table[src_pos][Track.image2.value])
+	dst_table[dst_pos].append(src_table[src_pos][Track.source.value])
+	dst_table[dst_pos].append(src_table[src_pos][Track.track_id.value])
