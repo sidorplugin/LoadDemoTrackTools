@@ -44,8 +44,8 @@ if to_date == "":
 
 # Определяем количество страниц которые соответствуют запросу.
 print('searching pages for date range [' + from_date, '-', to_date + ']')
-from_unix_time = funcs.get_date_for_string(from_date)
-to_unix_time = funcs.get_date_for_string(to_date)
+from_unix_time = funcs.get_datetime_for_string(from_date)
+to_unix_time = funcs.get_datetime_for_string(to_date)
 to_page = juno.get_max_page(s, genre, from_unix_time, to_unix_time)
 
 if to_page == 0:
@@ -61,7 +61,7 @@ table = []
 print('loading tracks info...')
 while page <= to_page:
 	print('loading page', page, 'from', to_page)
-	data = juno.load_page(s, page, from_unix_time.strftime('%s'), to_unix_time.strftime('%s'), genre)
+	data = juno.load_page(s, page, from_unix_time.timestamp(), to_unix_time.timestamp(), genre)
 	# Парсим страницу получая ссылки на треки.
 	juno.parse_page(data, table, genre)
 	page += 1

@@ -75,6 +75,9 @@ def rand_pause(sleep_time):
 
 def get_date_for_string(dd_mm_yyyy):
 	return datetime.datetime.strptime(dd_mm_yyyy, '%d.%m.%Y').date()
+	
+def get_datetime_for_string(dd_mm_yyyy):
+	return datetime.datetime.strptime(dd_mm_yyyy, '%d.%m.%Y')
 
 def get_string_for_date(date):
 	return str(date.day) + '.' + str(date.month) + '.' + str(date.year)

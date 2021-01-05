@@ -4,13 +4,14 @@ import random
 import funcs
 from bs4 import BeautifulSoup
 from enum import Enum
-from datetime import date
+from datetime import date, datetime, timezone
 
 source_address = "https://www.juno.co.uk"
 
 # Функция загружает страницу жанра по ссылке.
 def load_page(session, page, from_date, to_date, genre):
-	url = 'https://www.juno.co.uk/{}/back-cat/{}/?facet%5Bdaterange%5D%5B0%5D={}TO{}'.format(genre, page, from_date, to_date)
+	url = 'https://www.juno.co.uk/{}/back-cat/{}/?facet[daterange][0]={}TO{}'.format(genre, page, int(from_date), int(to_date))
+	print(url)
 	request = session.get(url)
 	return request.text
 
@@ -95,7 +96,7 @@ def parse_album(albums, percent, table, genre):
 # Функция возвращает номер страницы по дате.
 def get_max_page(session, genre, from_date, to_date):
 	page = 0
-	data = load_page(session, 1, from_date.strftime('%s'), to_date.strftime('%s'), genre)
+	data = load_page(session, 1, from_date.timestamp(), to_date.timestamp(), genre)
 	soup = BeautifulSoup(data, 'html.parser')
 
 	try:
