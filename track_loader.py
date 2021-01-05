@@ -27,7 +27,7 @@ tracks_path = namespace.bin_path[0]
 root_path = namespace.dir
 sleep_time = int(namespace.sleep)
 max_tracks = int(namespace.max)
-load_img = bool(namespace.img)
+load_img = int(namespace.img)
 
 finish_path = ''
 cur_album = ''
