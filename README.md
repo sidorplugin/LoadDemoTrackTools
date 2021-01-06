@@ -44,7 +44,7 @@ Tools loading demo music records
 | Аргумент                   | Действие                                                                          |
 |----------------------------|-----------------------------------------------------------------------------------|
 | путь к файлу (обязательный)| файл-треклист с суфиксом .bin для записи результата                               |
-| -g, --genre                | жанр,  [techno, house, dubstep, electro, funk-soul-jazz, leftfield, trance-music, downtempo, drumandbass], default=techno                        |
+| -g, --genre                | жанр,  [techno, house, dubstep, electro-house, deep-house, funk-soul-jazz, leftfield, trance-music, downtempo, drumandbass, minimal-tech-house, experimental-electronic], default=techno                        |
 | -f, --from_date            | начальная дата поиска [dd.mm.yyyy], default=today                                 |
 | -t, --to_date              | конечная дата поиска [dd.mm.yyyy], default=today                                  |
 

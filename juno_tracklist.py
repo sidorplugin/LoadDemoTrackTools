@@ -1,7 +1,7 @@
 # Получает треклист с ресурса "https://www.juno.co.uk" по заданным параметрам.
 # juno_tracklist.py tracks.bin -g house -f dd.mm.yyyy -t dd.mm.yyyy
 	# file - выходной файл для записи *.bin
-	# g - жанр [techno, house, dubstep, electro, funk-soul-jazz, leftfield, trance-music, downtempo, drumandbass], default=techno
+	# g - жанр [techno, house, dubstep, electro-house, deep-house, funk-soul-jazz, leftfield, trance-music, downtempo, drumandbass, minimal-tech-house, experimental-electronic], default=techno
 	# f - начальная дата поиска, ранняя [dd.mm.yyyy], default=today
 	# t - конечная дата поиска, поздняя [dd.mm.yyyy], default=today
 
@@ -19,7 +19,7 @@ import juno
 # Разбор командной строки.
 parser = argparse.ArgumentParser()
 parser.add_argument ('bin_result', nargs=1)
-parser.add_argument ('-g', '--genre', choices=['techno', 'house', 'leftfield', 'downtempo', 'dubstep', 'electro', 'funk-soul-jazz', 'trance-music', 'drumandbass'], default='techno')
+parser.add_argument ('-g', '--genre', choices=['techno', 'house', 'leftfield', 'downtempo', 'dubstep', 'electro-house', 'deep-house', 'funk-soul-jazz', 'trance-music', 'drumandbass', 'minimal-tech-house', 'experimental-electronic'], default='techno')
 parser.add_argument ('-f', '--from_date', default='')
 parser.add_argument ('-t', '--to_date', default='')
 
