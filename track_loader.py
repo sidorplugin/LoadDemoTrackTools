@@ -59,8 +59,8 @@ while i < len(table):
 	# Создаем директорию для треков.
 	if i % max_tracks == 0.0:
 		finish_path = root_path + '/' + str(num_path) + '/'
-		if not os.path.exists(finish_path):
-			os.mkdir(finish_path)
+		if not os.path.exists(finish_path):			
+			os.makedirs(finish_path)
 		num_path += 1
 
 	# Проверяем название артиста и трека на наличие "/", меняем его на "_".
