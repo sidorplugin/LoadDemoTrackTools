@@ -89,13 +89,14 @@ while i < len(table):
 
 	# Записываем ID3 тег в файл.
 	audiofile = eyed3.load(file_name)
-	audiofile.tag.artist = artist
-	audiofile.tag.title = title
-	audiofile.tag.album = album
-	audiofile.tag.genre = genre
-	# audiofile.tag.release_date = date
-	audiofile.tag.publisher = publisher
-	audiofile.tag.save()
+	if audiofile != None:
+		audiofile.tag.artist = artist
+		audiofile.tag.title = title
+		audiofile.tag.album = album
+		audiofile.tag.genre = genre
+		# audiofile.tag.release_date = date
+		audiofile.tag.publisher = publisher
+		audiofile.tag.save()
 
 	# Задерживаем закачку на случайное время.
 	funcs.rand_pause(sleep_time)
