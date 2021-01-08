@@ -70,49 +70,67 @@ def create_track_link(image_href, track_href):
 		link = link.replace(".png", suffix + ".mp3")
 		return link
 	else:
-		return ""    
+		return ""
 
-# Функция парсит треки в альбоме, записывая результат в таблицу.
-def parse_album(table, album_link, text, log_file):
-	soup = BeautifulSoup(text, 'html.parser')
-	
-	artist_div = soup.find('div',{'class':'artist'})
-	if artist_div != None:
-		artist_h1 = artist_div.find('h1')
-		if artist_h1 == None:
-			log_file.write('deejay.de: no data for: ' + album_link + '\n')
-			return
 
+# Функция возвращает True если альбом пустой, иначе False.
+def album_is_empty(soup):
+	div = soup.find('div',{'class':'artist'})
+	if div == None:		
+		return True
+
+	h1 = div.find('h1')
+	if h1 == None:
+		return True
+
+	return False
+
+def get_artist(soup, album_link):
 	try:
 		artist = soup.find('div',{'class':'artist'}).find('h1').text
 	except:
 		artist = ""
 		log_file.write('deejay.de: warning find artist in: ' + album_link + '\n')
-	
+
+	return artist
+
+def get_album(soup, album_link):
 	try:    
 		album = soup.find('div',{'class':'title'}).find('h1').text
 	except:
 		album = ""
 		log_file.write('deejay.de: warning find album in: ' + album_link + '\n')
-	
+
+	return album
+
+def get_genre(soup, album_link):
 	try:
 		genre = soup.find('div',{'class':'styles'}).find('a',{'class':'main'}).find('em').text
 	except:
 		genre = ""
 		log_file.write('deejay.de: warning find genre in: ' + album_link + '\n')
-	
+
+	return genre
+
+def get_catalog(soup, album_link):
 	try:
 		catalog = soup.find('div',{'class':'label'}).find('h1').text
 	except:
 		catalog = ""
 		log_file.write('deejay.de: warning find catalog in: ' + album_link + '\n')
 	
+	return catalog
+
+def get_label(soup, album_link):
 	try:
 		label = soup.find('div',{'class':'label'}).find('h3').text
 	except:
 		label = ""
 		log_file.write('deejay.de: warning find label in: ' + album_link + '\n')
 	
+	return label
+
+def get_date(soup, album_link):
 	try:
 		date = soup.find('span',{'class':'date'}).text
 		# Убираем в начале строки слово "Release : ".
@@ -121,24 +139,32 @@ def parse_album(table, album_link, text, log_file):
 		date = ""
 		log_file.write('deejay.de: warning find date in: ' + album_link + '\n')
 	
+	return date
+
+def get_image1(soup, album_link):
 	image1 = ""
 	try:
-		image1 = soup.find('div',{'class':'img allbig img1'}).find('a',{'class':'noMod'}).get('href')
-		image1 = source_address + image1
+		img = soup.find('div',{'class':'img allbig img1'})
 	except:
 		try:
-			image1 = soup.find('div',{'class':'img img1'}).find('a',{'class':'noMod'}).get('href')
-			image1 = source_address + image1
-		except:
+			img = img.find('div',{'class':'img img1'})
+		except:	
 			image1 = ""
 			log_file.write('deejay.de: warning find image1 in: ' + album_link + '\n')
+
+	if img != None:
+		image1 = img.find('a',{'class':'noMod'}).get('href')
+		image1 = source_address + image1
 	
+	return image1
+
+def get_image2(soup, album_link):
 	image2 = ""
 	try:
 		img = soup.find('div',{'class':'img allbig img2'})
 	except:
 		try:
-			img = soup.find('div',{'class':'img img2'})
+			img = img.find('div',{'class':'img img2'})
 		except:	
 			image2 = ""
 			log_file.write('deejay.de: warning find image2 in: ' + album_link + '\n')
@@ -146,7 +172,25 @@ def parse_album(table, album_link, text, log_file):
 	if img != None:
 		image2 = img.find('a',{'class':'noMod'}).get('href')
 		image2 = source_address + image2
+	
+	return image2
 
+# Функция парсит треки в альбоме, записывая результат в таблицу.
+def parse_album(table, album_link, text, log_file):
+	soup = BeautifulSoup(text, 'html.parser')
+	
+	if album_is_empty(soup):
+		log_file.write('deejay.de: no data for: ' + album_link + '\n')
+		return
+
+	artist = get_artist(soup, album_link)
+	album = get_album(soup, album_link)
+	genre = get_genre(soup, album_link)
+	catalog = get_catalog(soup, album_link)
+	label = get_label(soup, album_link)
+	date = get_date(soup, album_link)
+	image1 = get_image1(soup, album_link)
+	image2 = get_image2(soup, album_link)
 	source = "deejay.de"
 
 	soup = BeautifulSoup(text, 'html.parser')
