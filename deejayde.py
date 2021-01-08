@@ -89,8 +89,7 @@ def get_artist(soup, album_link):
 	try:
 		artist = soup.find('div',{'class':'artist'}).find('h1').text
 	except:
-		artist = ""
-		log_file.write('deejay.de: warning find artist in: ' + album_link + '\n')
+		artist = ""		
 
 	return artist
 
@@ -98,8 +97,7 @@ def get_album(soup, album_link):
 	try:    
 		album = soup.find('div',{'class':'title'}).find('h1').text
 	except:
-		album = ""
-		log_file.write('deejay.de: warning find album in: ' + album_link + '\n')
+		album = ""		
 
 	return album
 
@@ -107,8 +105,7 @@ def get_genre(soup, album_link):
 	try:
 		genre = soup.find('div',{'class':'styles'}).find('a',{'class':'main'}).find('em').text
 	except:
-		genre = ""
-		log_file.write('deejay.de: warning find genre in: ' + album_link + '\n')
+		genre = ""		
 
 	return genre
 
@@ -116,8 +113,7 @@ def get_catalog(soup, album_link):
 	try:
 		catalog = soup.find('div',{'class':'label'}).find('h1').text
 	except:
-		catalog = ""
-		log_file.write('deejay.de: warning find catalog in: ' + album_link + '\n')
+		catalog = ""		
 	
 	return catalog
 
@@ -125,8 +121,7 @@ def get_label(soup, album_link):
 	try:
 		label = soup.find('div',{'class':'label'}).find('h3').text
 	except:
-		label = ""
-		log_file.write('deejay.de: warning find label in: ' + album_link + '\n')
+		label = ""		
 	
 	return label
 
@@ -136,8 +131,7 @@ def get_date(soup, album_link):
 		# Убираем в начале строки слово "Release : ".
 		date = date[10:20]
 	except:
-		date = ""
-		log_file.write('deejay.de: warning find date in: ' + album_link + '\n')
+		date = ""		
 	
 	return date
 
@@ -149,8 +143,7 @@ def get_image1(soup, album_link):
 		try:
 			img = img.find('div',{'class':'img img1'})
 		except:	
-			image1 = ""
-			log_file.write('deejay.de: warning find image1 in: ' + album_link + '\n')
+			image1 = ""			
 
 	if img != None:
 		image1 = img.find('a',{'class':'noMod'}).get('href')
@@ -166,8 +159,7 @@ def get_image2(soup, album_link):
 		try:
 			img = img.find('div',{'class':'img img2'})
 		except:	
-			image2 = ""
-			log_file.write('deejay.de: warning find image2 in: ' + album_link + '\n')
+			image2 = ""			
 
 	if img != None:
 		image2 = img.find('a',{'class':'noMod'}).get('href')
@@ -184,13 +176,37 @@ def parse_album(table, album_link, text, log_file):
 		return
 
 	artist = get_artist(soup, album_link)
+	if artist == "":
+		log_file.write('deejay.de: warning find artist in: ' + album_link + '\n')
+	
 	album = get_album(soup, album_link)
+	if album == "":
+		log_file.write('deejay.de: warning find album in: ' + album_link + '\n')
+	
 	genre = get_genre(soup, album_link)
+	if genre == "":
+		log_file.write('deejay.de: warning find genre in: ' + album_link + '\n')
+	
 	catalog = get_catalog(soup, album_link)
+	if catalog == "":
+		log_file.write('deejay.de: warning find catalog in: ' + album_link + '\n')
+	
 	label = get_label(soup, album_link)
+	if label == "":
+		log_file.write('deejay.de: warning find label in: ' + album_link + '\n')
+
 	date = get_date(soup, album_link)
+	if date == "":
+		log_file.write('deejay.de: warning find date in: ' + album_link + '\n')
+	
 	image1 = get_image1(soup, album_link)
+	if image1 == "":
+		log_file.write('deejay.de: warning find image1 in: ' + album_link + '\n')
+	
 	image2 = get_image2(soup, album_link)
+	if image2 == "":
+		log_file.write('deejay.de: warning find image2 in: ' + album_link + '\n')
+	
 	source = "deejay.de"
 
 	soup = BeautifulSoup(text, 'html.parser')

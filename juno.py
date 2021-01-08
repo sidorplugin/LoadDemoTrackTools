@@ -15,7 +15,7 @@ def load_page(session, page, from_date, to_date, genre):
 	return request.text
 
 # Функция парсит страницу, записывая инфо о треках в таблицу.
-def parse_page(text, table, genre):
+def parse_page(text, table, genre, log_file):
 	soup = BeautifulSoup(text, 'html.parser')
 
 	i = 0
@@ -24,26 +24,33 @@ def parse_page(text, table, genre):
 	for albums in soup.findAll('div',{'class':'dv-item'}):
 		# Вычисляем процент загрузки.
 		percent = round(((i + 1) * 100) / albums_size)
-		parse_album(albums, percent, table, genre)
+		parse_album(albums, percent, table, genre, log_file)
 		i += 1
 
-# Функция парсит треки в альбоме, записывая результат в таблицу.
-def parse_album(albums, percent, table, genre):
-	try:
-		params = albums.findAll('div', {'class': 'vi-text'})
-		artist = params[0].find('strong').text
-		album = params[1].find('a', {'class': 'text-md'}).text
-		album_link = source_address + params[1].find('a', {'class': 'text-md'}).get('href')
-		label = params[2].text
-		label = label.lstrip()
-		cat_and_date = params[3].text
-		date = cat_and_date.split(". Rel: ")[1]
-		catalog = cat_and_date.split(". Rel: ")[0][5:]
-		# Убираем пробелы.
-		catalog = catalog.replace(' ', '')
-	except:
-		print("error fetch params")
+def get_artist(params):
+	return params[0].find('strong').text
 
+def get_album(params):
+	return params[1].find('a', {'class': 'text-md'}).text
+
+def get_album_link(params):
+	return source_address + params[1].find('a', {'class': 'text-md'}).get('href')
+
+def get_catalog(params):
+	div = params[3].text
+	catalog = div.split(". Rel: ")[0][5:]
+	# Убираем пробелы.
+	return catalog.replace(' ', '')
+	
+def get_label(params):
+	label = params[2].text
+	return label.lstrip()
+
+def get_date(params):
+	div = params[3].text
+	return div.split(". Rel: ")[1]
+
+def get_image1(albums):
 	try:
 		img = albums.find('img',{'class':'lazy_img img-fluid'})
 		try:
@@ -52,12 +59,47 @@ def parse_album(albums, percent, table, genre):
 			else:
 				image1 = img.get('src')
 		except:
-			print("warning find image")
+			image1 = ""
 	except:
-		print("warning find image")
+		image1 = ""
 
-	image1 = image1.replace('/150/', '/full/').replace('.jpg','-BIG.jpg')
-	image2 = image1.replace('A-BIG.jpg', 'B-BIG.jpg')
+	if image1 != "":
+		image1 = image1.replace('/150/', '/full/').replace('.jpg','-BIG.jpg')
+	
+	return image1
+
+def get_image2(image1):
+	if image1 == "":
+		return ""
+	return image1.replace('A-BIG.jpg', 'B-BIG.jpg')
+
+# Функция парсит треки в альбоме, записывая результат в таблицу.
+def parse_album(albums, percent, table, genre, log_file):
+	try:
+		params = albums.findAll('div', {'class': 'vi-text'})
+
+		if params == None:
+			log_file.write('juno.co.uk: no tag, no data: <div class=vi-text> \n')
+			return
+
+		artist = get_artist(params)
+		album = get_album(params)
+		album_link = get_album_link(params)
+		label = get_label(params)
+		date = get_date(params)
+		catalog = get_catalog(params)
+	except:
+		log_file.write('juno.co.uk: no tag, no data: <div id=' + albums.get('id') + ' class=vi-text>\n')
+		return
+
+	image1 = get_image1(albums)
+	if image1 == '':
+		log_file.write('juno.co.uk: no image1: <img class=lazy_img img-fluid>; id=' + albums.get('id') + '\n')
+
+	image2 = get_image2(image1)
+	if image2 == '':
+		log_file.write('juno.co.uk: no image2: <img class=lazy_img img-fluid>; id=' + albums.get('id') + '\n')
+	
 	source = "juno.co.uk"
 
 	length = len(table)
@@ -90,6 +132,7 @@ def parse_album(albums, percent, table, genre):
 
 			num += 1
 		except:
+			log_file.write('juno.co.uk: no track: <div class=vi-text>\n')
 			continue
 
 # Функция возвращает номер страницы по дате.
@@ -102,7 +145,6 @@ def get_max_page(session, genre, from_date, to_date):
 		page_data = soup.find('div',{'class':'col-12 col-lg-4 col-xl-auto'}).text
 		page = int(page_data.split("1 of ")[1])
 	except:
-		print("no pages:")
 		return page
 
 	return page

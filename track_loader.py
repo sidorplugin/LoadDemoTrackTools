@@ -64,8 +64,8 @@ while i < len(table):
 		num_path += 1
 
 	# Проверяем название артиста и трека на наличие "/", меняем его на "_".
-	artist = artist.replace('/', '_');
-	title = title.replace('/', '_');
+	artist = artist.replace('/', '_').replace('\'', '');
+	title = title.replace('/', '_').replace('\'', '');
 
 	# Определяем имя файла.
 	file_name = finish_path + artist + ' - ' + title + '.mp3'

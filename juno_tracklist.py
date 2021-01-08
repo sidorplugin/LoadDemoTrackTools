@@ -34,13 +34,16 @@ to_date = namespace.to_date
 s = requests.Session() 
 s.headers.update({'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:71.0) Gecko/20100101 Firefox/71.0'})
 
+# Создаем файл логирования.
+log_file = open("log.txt", 'a')
+
 # Даты по-умолчанию.
 if from_date == "":
 	from_date = funcs.get_string_for_date(date.today())
-	print(from_date)
+	log_file.write('juno.co.uk: default from_date = ' + from_date + '\n')
 if to_date == "":
 	to_date = funcs.get_string_for_date(date.today())
-	print(to_date)
+	log_file.write('juno.co.uk: default from_date = ' + to_date + '\n')
 
 # Определяем количество страниц которые соответствуют запросу.
 print('juno.co.uk: searching pages for date range [' + from_date, '-', to_date + ']')
@@ -49,7 +52,7 @@ to_unix_time = funcs.get_datetime_for_string(to_date)
 to_page = juno.get_max_page(s, genre, from_unix_time, to_unix_time)
 
 if to_page == 0:
-	print('error: no date for your request.')
+	log_file.write('juno.co.uk error: no date for your request.')
 	sys.exit()
 
 page = 1
@@ -63,7 +66,7 @@ while page <= to_page:
 	print('juno.co.uk: loading page', page, 'from', to_page)
 	data = juno.load_page(s, page, from_unix_time.timestamp(), to_unix_time.timestamp(), genre)
 	# Парсим страницу получая ссылки на треки.
-	juno.parse_page(data, table, genre)
+	juno.parse_page(data, table, genre, log_file)
 	page += 1
 print('juno.co.uk: loading tracks info done.')
 
@@ -71,3 +74,5 @@ print('juno.co.uk: loading tracks info done.')
 ft = open(tracks_path, 'wb')
 funcs.save_to_file(ft, table)
 ft.close()
+
+log_file.close()
