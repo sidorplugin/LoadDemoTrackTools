@@ -54,16 +54,20 @@ if to_date == "":
 
 if binary_mode:
 	if max_page == 0:
-		print('searching max page for', genre, '...')
+		print('deejay.de: searching max page for', genre, '...')
 		max_page = deejayde.get_max_page(s, genre, start_page)
 
 # Определяем диапазон страниц которые соответствуют запросу по дате.
-print('searching pages for date range [' + from_date, '-', to_date + ']')
+print('deejay.de: searching pages for date range [' + from_date, '-', to_date + ']')
 to_page = deejayde.get_number_page_by_date(s, genre, from_date, binary_mode, max_page, False)
 from_page = deejayde.get_number_page_by_date(s, genre, to_date, binary_mode, max_page, True)
 
-if to_page == 0 or from_page == 0:
-	print('error: no date for your request.')
+# Создаем файл логирования.
+log_file = open("log.txt", 'a')
+
+if to_page == 0 or from_page == 0:	
+	log_file.write('deejay.de error: no date for your request (to_page = ' + to_page + ' from_page = ' + from_page + '\n')
+	log_file.close()
 	sys.exit()
 
 albums_path = 'albums.bin'
@@ -73,15 +77,15 @@ page = from_page
 f = open(albums_path, 'ab')
 
 # Загружаем контент каждой страницы.
-print('loading albums info...')
+print('deejay.de: loading albums info...')
 while page <= to_page:
-	print('loading page', page, 'from', to_page)
+	print('deejay.de: loading page', page, 'from', to_page)
 	data = deejayde.load_page(s, page, genre)
 	# Парсим страницу получая ссылки на альбомы.
-	deejayde.parse_page(f, data)
+	deejayde.parse_page(f, data, log_file)
 	page += 1
 f.close()
-print('loading pages info done.\n')
+print('deejay.de: loading pages info done.\n')
 
 # Открываем файл albums_path на чтение для определения количества альбомов.
 f = open(albums_path, 'rb')
@@ -95,7 +99,7 @@ table = []
 f = open(albums_path, 'rb')
 
 # Загружаем контент для каждой ссылки альбома.
-print('loading tracks info...')
+print('deejay.de: loading tracks info...')
 i = 0
 for line in f:
 	link = line.decode()
@@ -107,16 +111,18 @@ for line in f:
 	print('[' + str(percent) + '%]', link)
 	
 	# Парсим страницу получая информацию о треках.
-	deejayde.parse_album(table, link, data)
+	deejayde.parse_album(table, link, data, log_file)
 
 	i += 1
 f.close()
-print('loading tracks info done.')
+print('deejay.de: loading tracks info done.')
 
 # Сохраняем информацию о треках в файл tracks.bin.
 ft = open(tracks_path, 'wb')
 funcs.save_to_file(ft, table)
 ft.close()
+
+log_file.close()
 
 # Удаляем файл albums_path.
 os.remove(albums_path)
