@@ -21,6 +21,9 @@ output_bin = namespace.output_bin
 # Создаем таблицу для хранения результата.
 table = []
 
+# Создаем файл логирования.
+log_file = open("log.txt", 'a')
+
 # Для каждого bin файла
 for bin_file in bin_files:
 	print(bin_file, "prepare...")
@@ -43,6 +46,7 @@ for bin_file in bin_files:
 			artist = temp_table[i][funcs.Track.artist.value]
 			title = temp_table[i][funcs.Track.title.value]
 			print("Finded dublicate:", "(id: " + track_id + ")", artist, "-", title)
+			log_file.write("Finded dublicate: (id: " + track_id + ") " + artist + " - " + title + "\n")
 		i += 1
 	# Очищаем временную таблицу
 	temp_table.clear()
@@ -51,5 +55,7 @@ for bin_file in bin_files:
 ft = open(output_bin, 'wb')
 funcs.save_to_file(ft, table)
 ft.close()
+
+log_file.close()
 
 print("done.")
