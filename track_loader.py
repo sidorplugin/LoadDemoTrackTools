@@ -63,9 +63,9 @@ while i < len(table):
 			os.makedirs(finish_path)
 		num_path += 1
 
-	# Проверяем название артиста и трека на наличие "/", меняем его на "_".
-	artist = artist.replace('/', '_').replace('\'', '').replace('|', '').replace('\"', '').replace('?', '');
-	title = title.replace('/', '_').replace('\'', '').replace('|', '').replace('\"', '').replace('?', '');
+	# (TODO Регулярка). Проверяем название артиста и трека на наличие недопустимых символов.
+	artist = artist.replace('/', '_').replace('\'', '').replace('|', '').replace('\"', '').replace('?', '').replace('\\', '').replace('<', '').replace('>', '').replace(':', '')
+	title = title.replace('/', '_').replace('\'', '').replace('|', '').replace('\"', '').replace('?', '').replace('\\', '').replace('<', '').replace('>', '').replace(':', '')
 
 	# Определяем имя файла.
 	file_name = finish_path + artist + ' - ' + title + '.mp3'

@@ -139,11 +139,16 @@ def get_image1(soup, album_link):
 	image1 = ""
 	try:
 		img = soup.find('div',{'class':'img allbig img1'})
+		if img == None:
+			try:
+				img = soup.find('div',{'class':'img img1'})
+			except:	
+				image1 = ""
 	except:
 		try:
-			img = img.find('div',{'class':'img img1'})
+			img = soup.find('div',{'class':'img img1'})
 		except:	
-			image1 = ""			
+			image1 = ""
 
 	if img != None:
 		image1 = img.find('a',{'class':'noMod'}).get('href')
@@ -155,11 +160,16 @@ def get_image2(soup, album_link):
 	image2 = ""
 	try:
 		img = soup.find('div',{'class':'img allbig img2'})
+		if img == None:
+			try:
+				img = soup.find('div',{'class':'img img2'})
+			except:	
+				image2 = ""
 	except:
 		try:
-			img = img.find('div',{'class':'img img2'})
+			img = soup.find('div',{'class':'img img2'})
 		except:	
-			image2 = ""			
+			image2 = ""
 
 	if img != None:
 		image2 = img.find('a',{'class':'noMod'}).get('href')
@@ -214,6 +224,9 @@ def parse_album(table, album_link, text, log_file):
 	num = 1
 	for tracks in soup.findAll('li'):
 		try:
+			if tracks.find('a')==None:
+				log_file.write('deejay.de: problem to find <a> tag\n')
+				continue
 			title = tracks.find('a').text
 			# Убираем лишние пробелы.
 			title = ' '.join(title.split())
